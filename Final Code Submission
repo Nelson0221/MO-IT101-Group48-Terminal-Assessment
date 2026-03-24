@@ -1,0 +1,56 @@
+package com.motorph.finalassessment;
+
+import java.io.*;
+import java.util.*;
+
+public class PayrollSystem {
+    // Constant para sa path para madaling palitan
+    private static final String FILE_PATH = "src/MotorPH_Employee_Data.csv";
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("=== MotorPH Employee Portal (Final) ===");
+        System.out.print("Enter Employee ID to Search: ");
+        String searchId = sc.nextLine();
+
+        findAndCalculate(searchId);
+        sc.close();
+    }
+
+    public static void findAndCalculate(String id) {
+        try (BufferedReader br = new BufferedReader(new FileReader(FILE_PATH))) {
+            String line;
+            boolean found = false;
+            br.readLine(); // Skip header
+
+            while ((line = br.readLine()) != null) {
+                // Regex to handle commas inside quotes (important for addresses!)
+                String[] data = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+
+                if (data[0].equals(id)) {
+                    displayEmployeeInfo(data);
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) System.out.println("Employee ID not found.");
+
+        } catch (IOException e) {
+            System.out.println("File Error: " + e.getMessage());
+        }
+    }
+
+    private static void displayEmployeeInfo(String[] data) {
+        String fullName = data[2] + " " + data[1]; // First Name + Last Name
+        double hourlyRate = Double.parseDouble(data[18].replace("\"", "").trim());
+
+        System.out.println("\n------------------------------");
+        System.out.println("Employee Name: " + fullName);
+        System.out.println("Hourly Rate: PHP " + hourlyRate);
+        
+        // Final Assessment Logic: Simple Weekly Computation (40 hrs)
+        double grossSalary = hourlyRate * 40; 
+        System.out.println("Computed Gross Salary (40hrs): PHP " + String.format("%.2f", grossSalary));
+        System.out.println("------------------------------");
+    }
+}
